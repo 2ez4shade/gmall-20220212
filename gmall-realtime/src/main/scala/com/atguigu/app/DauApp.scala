@@ -62,6 +62,8 @@ object DauApp {
     //把数据写入redis
     DauHandler.sendToRedis(filterbygroupDStream)
 
+    DauHandler.sendToHbase(filterbygroupDStream)
+
     //
 
 

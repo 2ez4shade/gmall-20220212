@@ -1,10 +1,12 @@
 package com.atguigu.handle
 
 import com.atguigu.bean.StartUpLog
+import org.apache.hadoop.hbase.HBaseConfiguration
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.dstream.DStream
 import redis.clients.jedis.Jedis
+import org.apache.phoenix.spark._
 
 import java.{lang, util}
 import java.text.SimpleDateFormat
@@ -17,7 +19,28 @@ import java.util.Date
  */
 object DauHandler {
   /**
+   * 发送数据到Hbase
+   * @param filterbygroupDStream
+   */
+  def sendToHbase(filterbygroupDStream: DStream[StartUpLog]) = {
+
+//    val value: DStream[(String, String, String, String, String, String, String, String, String, String, Long)] = filterbygroupDStream.mapPartitions(_.map(s => {
+//      (s.mid, s.uid, s.appid, s.area, s.os, s.ch, s.`type`, s.vs, s.logDate, s.logHour, s.ts)
+//    }))
+    //savetophoenix可以直接解析对象上传
+    filterbygroupDStream.foreachRDD(RDD=>{
+        RDD.saveToPhoenix(
+          "GMALL2021_DAU",
+          Seq("MID", "UID", "APPID", "AREA", "OS", "CH", "TYPE", "VS", "LOGDATE", "LOGHOUR", "TS"),
+          HBaseConfiguration.create,
+          Some("hadoop102,hadoop103,hadoop104:2181")
+        )
+    })
+  }
+
+  /**
    * 分区内过滤
+   *
    * @param disfillterDStream
    */
   def filterbyGroup(disfillterDStream: DStream[StartUpLog]) = {
