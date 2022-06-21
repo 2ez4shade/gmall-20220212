@@ -1,8 +1,9 @@
-package com.atguigu.com.atguigu.app
+package com.atguigu.app
 
 import com.alibaba.fastjson.JSON
 import com.atguigu.bean.StartUpLog
 import com.atguigu.constants.GmallConstants
+import com.atguigu.handle.DauHandler
 import com.atguigu.utils.MyKafkaUtil
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.spark.SparkConf
@@ -40,7 +41,14 @@ object DauApp {
       )
     })
 
-    StartUplogDStream.print()
+//    StartUplogDStream.print()
+    //把数据批次间去重
+
+    //对数据分区间去重
+
+    //把数据写入redis
+      DauHandler.sendToRedis(StartUplogDStream)
+    //
 
     //启动并阻塞
     ssc.start()
