@@ -56,7 +56,7 @@ object DauApp {
 
     filterbygroupDStream.cache()
 //
-//    filterbygroupDStream.count().print()
+    filterbygroupDStream.count().print()
 
     //把数据写入redis
     DauHandler.sendToRedis(filterbygroupDStream)
