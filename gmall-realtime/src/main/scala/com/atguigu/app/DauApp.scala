@@ -43,7 +43,6 @@ object DauApp {
 
     StartUplogDStream.cache()
 
-    StartUplogDStream.count().print()
 //    StartUplogDStream.print()
     //把数据批次间去重
     val disfillterDStream: DStream[StartUpLog] = DauHandler.fillterByRedis(StartUplogDStream)
@@ -55,18 +54,18 @@ object DauApp {
     //对数据分区间去重
     val filterbygroupDStream: DStream[StartUpLog] = DauHandler.filterbyGroup(disfillterDStream)
 
-//    filterbygroupDStream.cache()
+    filterbygroupDStream.cache()
 //
 //    filterbygroupDStream.count().print()
 
     //把数据写入redis
     DauHandler.sendToRedis(filterbygroupDStream)
 
+
+    //数据写入Hbase
     DauHandler.sendToHbase(filterbygroupDStream)
 
     //
-
-
 
     //启动并阻塞
     ssc.start()
