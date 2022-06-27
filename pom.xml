@@ -18,6 +18,9 @@
     <modules>
         <module>gmall-common</module>
         <module>gmall-realtime</module>
+        <module>gmall-canal</module>
+        <module>untitled</module>
+        <module>es-0212</module>
     </modules>
 
     <properties>

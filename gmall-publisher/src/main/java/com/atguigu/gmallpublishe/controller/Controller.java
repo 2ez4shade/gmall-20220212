@@ -25,13 +25,16 @@ public class Controller {
     @RequestMapping("realtime-total")
     public String realtimeTotal(@RequestParam("date") String date){
 
-        int total = publisherService.getDauTotal(date);
+        Integer total = publisherService.getDauTotal(date);
+        Double amountTotal = publisherService.getOrderAmountTotal(date);
 
         ArrayList<Map> list = new ArrayList<Map>();
 
         HashMap<String, Object> duaMap = new HashMap<>();
 
         HashMap<String, Object> devMap = new HashMap<>();
+
+        HashMap<String, Object> ordMap = new HashMap<>();
 
         duaMap.put("id", "dau");
         duaMap.put("name","新增日活");
@@ -41,8 +44,13 @@ public class Controller {
         devMap.put("name", "新增设备");
         devMap.put("value", 233);
 
+        ordMap.put("id", "order_amount");
+        ordMap.put("name", "新增交易额");
+        ordMap.put("value", amountTotal);
+
         list.add(duaMap);
         list.add(devMap);
+        list.add(ordMap);
 
         return JSONObject.toJSONString(list);
 
@@ -50,11 +58,22 @@ public class Controller {
 
     @RequestMapping("realtime-hours")
     public String realtimeHours(@RequestParam("id")String id,@RequestParam("date")String date){
-        Map todaymap = publisherService.getDauTotalHours(date);
 
         String yesterday = LocalDate.parse(date).plusDays(-1).toString();
 
-        Map yestermap = publisherService.getDauTotalHours(yesterday);
+        Map todaymap = null;
+        Map yestermap = null;
+
+        if ("dau".equals(id)){
+            todaymap = publisherService.getDauTotalHours(date);
+
+            yestermap = publisherService.getDauTotalHours(yesterday);
+        } else if ("order_amount".equals(id)) {
+            todaymap = publisherService.getOrderAmountHourMap(date);
+
+            yestermap = publisherService.getOrderAmountHourMap(yesterday);
+        }
+
 
         HashMap<String, Map> result = new HashMap<>();
 
@@ -64,4 +83,5 @@ public class Controller {
         return JSONObject.toJSONString(result);
 
     }
+
 }
