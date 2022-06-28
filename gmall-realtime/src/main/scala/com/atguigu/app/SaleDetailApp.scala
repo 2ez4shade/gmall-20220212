@@ -4,9 +4,10 @@ package com.atguigu.app
 import com.alibaba.fastjson.JSON
 import com.atguigu.bean.{OrderDetail, OrderInfo, SaleDetail, UserInfo}
 import com.atguigu.constants.GmallConstants
-import com.atguigu.utils.MyKafkaUtil
+import com.atguigu.utils.{MyESUtils, MyKafkaUtil}
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.spark.SparkConf
+import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.dstream.{DStream, InputDStream}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.json4s.native.Serialization
@@ -149,8 +150,19 @@ object SaleDetailApp {
       jedis.close()
       details.asScala.toIterator
     })
+    SaleDetailDStream.cache()
     SaleDetailDStream.print()
+
     //写到es
+    SaleDetailDStream.foreachRDD(rdd=>{
+      val lastRDD: RDD[(String, SaleDetail)] = rdd.mapPartitions(part => {
+        part.map(detail => (detail.user_id + detail.order_id + detail.order_detail_id, detail))
+      })
+      lastRDD.foreachPartition(iter=>{
+        MyESUtils.sendTOES("",iter.toList)
+      })
+    }
+    )
 
 
     //
